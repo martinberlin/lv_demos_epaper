@@ -1062,6 +1062,9 @@ static void color_event_cb(lv_event_t * e)
         if(palette_secondary >= _LV_PALETTE_LAST) palette_secondary = 0;
 
         lv_theme_default_init(NULL, lv_palette_main(*palette_primary), lv_palette_main(palette_secondary), LV_THEME_DEFAULT_DARK, font_normal);
+        //lv_theme_basic_init(NULL);
+        //lv_theme_t * lv_theme_mono_init(lv_display_t * disp, bool dark_bg, const lv_font_t * font);
+        //lv_theme_mono_init(NULL, false, font_normal);
 
         lv_color_t color = lv_palette_main(*palette_primary);
         lv_style_set_text_color(&style_icon, color);
@@ -1259,7 +1262,7 @@ static void slider_event_cb(lv_event_t * e)
         lv_obj_draw_part_dsc_t * dsc = lv_event_get_param(e);
         if(dsc->part == LV_PART_KNOB && lv_obj_has_state(obj, LV_STATE_PRESSED)) {
             char buf[8];
-            lv_snprintf(buf, sizeof(buf), "%"LV_PRId32, lv_slider_get_value(obj));
+            lv_snprintf(buf, sizeof(buf), "%d", (int)lv_slider_get_value(obj));
 
             lv_point_t text_size;
             lv_txt_get_size(&text_size, buf, font_normal, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
@@ -1280,13 +1283,13 @@ static void slider_event_cb(lv_event_t * e)
             lv_draw_rect_dsc_init(&rect_dsc);
             rect_dsc.bg_color = lv_palette_darken(LV_PALETTE_GREY, 3);
             rect_dsc.radius = LV_DPX(5);
-            lv_draw_rect(&bg_area, dsc->clip_area, &rect_dsc);
+            lv_draw_rect(&bg_area, dsc->draw_area, &rect_dsc);
 
             lv_draw_label_dsc_t label_dsc;
             lv_draw_label_dsc_init(&label_dsc);
             label_dsc.color = lv_color_white();
             label_dsc.font = font_normal;
-            lv_draw_label(&txt_area, dsc->clip_area, &label_dsc, buf, NULL);
+            lv_draw_label(&txt_area, dsc->draw_area, &label_dsc, buf, NULL);
         }
     }
 }
@@ -1334,7 +1337,7 @@ static void chart_event_cb(lv_event_t * e)
                 draw_rect_dsc.bg_color = dsc->line_dsc->color;
 
                 lv_area_t obj_clip_area;
-                _lv_area_intersect(&obj_clip_area, dsc->clip_area, &obj->coords);
+                _lv_area_intersect(&obj_clip_area, dsc->draw_area, &obj->coords);
 
                 lv_area_t a;
                 a.x1 = dsc->p1->x;
@@ -1363,7 +1366,7 @@ static void chart_event_cb(lv_event_t * e)
                 }
 
                 char buf[8];
-                lv_snprintf(buf, sizeof(buf), "%"LV_PRIu32, dsc->value);
+                lv_snprintf(buf, sizeof(buf), "%d", (int)dsc->value);
 
                 lv_point_t text_size;
                 lv_txt_get_size(&text_size, buf, font_normal, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
@@ -1396,13 +1399,13 @@ static void chart_event_cb(lv_event_t * e)
                 lv_draw_rect_dsc_init(&rect_dsc);
                 rect_dsc.bg_color = ser->color;
                 rect_dsc.radius = LV_DPX(5);
-                lv_draw_rect(&bg_area, dsc->clip_area, &rect_dsc);
+                lv_draw_rect(&bg_area, dsc->draw_area, &rect_dsc);
 
                 lv_draw_label_dsc_t label_dsc;
                 lv_draw_label_dsc_init(&label_dsc);
                 label_dsc.color = lv_color_white();
                 label_dsc.font = font_normal;
-                lv_draw_label(&txt_area, dsc->clip_area, &label_dsc, buf, NULL);
+                lv_draw_label(&txt_area, dsc->draw_area, &label_dsc, buf, NULL);
             } else {
                 dsc->rect_dsc->outline_width = 0;
                 dsc->rect_dsc->shadow_width = 0;
@@ -1447,18 +1450,18 @@ static void shop_chart_event_cb(lv_event_t * e)
             a.y2 = a.y1 + 4 + (devices[dsc->id] * h) / 100; /*+4 to overlap the radius*/
             draw_rect_dsc.bg_color = lv_palette_main(LV_PALETTE_RED);
             draw_rect_dsc.radius = 4;
-            lv_draw_rect(&a, dsc->clip_area, &draw_rect_dsc);
+            lv_draw_rect(&a, dsc->draw_area, &draw_rect_dsc);
 
             a.y1 = a.y2 - 4;                                    /*-4 to overlap the radius*/
             a.y2 = a.y1 +  (clothes[dsc->id] * h) / 100;
             draw_rect_dsc.bg_color = lv_palette_main(LV_PALETTE_BLUE);
             draw_rect_dsc.radius = 0;
-            lv_draw_rect(&a, dsc->clip_area, &draw_rect_dsc);
+            lv_draw_rect(&a, dsc->draw_area, &draw_rect_dsc);
 
             a.y1 = a.y2;
             a.y2 = a.y1 + (services[dsc->id] * h) / 100;
             draw_rect_dsc.bg_color = lv_palette_main(LV_PALETTE_GREEN);
-            lv_draw_rect(&a, dsc->clip_area, &draw_rect_dsc);
+            lv_draw_rect(&a, dsc->draw_area, &draw_rect_dsc);
         }
     }
 }
@@ -1470,7 +1473,7 @@ static void meter1_indic1_anim_cb(void * var, int32_t v)
 
     lv_obj_t * card = lv_obj_get_parent(meter1);
     lv_obj_t * label = lv_obj_get_child(card, -5);
-    lv_label_set_text_fmt(label, "Revenue: %"LV_PRId32" %%", v);
+    lv_label_set_text_fmt(label, "Revenue: %d %%", (int)v);
 }
 
 static void meter1_indic2_anim_cb(void * var, int32_t v)
@@ -1479,7 +1482,7 @@ static void meter1_indic2_anim_cb(void * var, int32_t v)
 
     lv_obj_t * card = lv_obj_get_parent(meter1);
     lv_obj_t * label = lv_obj_get_child(card, -3);
-    lv_label_set_text_fmt(label, "Sales: %"LV_PRId32" %%", v);
+    lv_label_set_text_fmt(label, "Sales: %d %%", (int)v);
 
 }
 
@@ -1489,7 +1492,7 @@ static void meter1_indic3_anim_cb(void * var, int32_t v)
 
     lv_obj_t * card = lv_obj_get_parent(meter1);
     lv_obj_t * label = lv_obj_get_child(card, -1);
-    lv_label_set_text_fmt(label, "Costs: %"LV_PRId32" %%", v);
+    lv_label_set_text_fmt(label, "Costs: %d %%", (int)v);
 }
 
 static void meter2_timer_cb(lv_timer_t * timer)
@@ -1542,13 +1545,13 @@ static void meter2_timer_cb(lv_timer_t * timer)
     lv_obj_t * label;
 
     label = lv_obj_get_child(card, -5);
-    lv_label_set_text_fmt(label, "Desktop: %"LV_PRIu32, session_desktop);
+    lv_label_set_text_fmt(label, "Desktop: %d", (int)session_desktop);
 
     label = lv_obj_get_child(card, -3);
-    lv_label_set_text_fmt(label, "Tablet: %"LV_PRIu32, session_tablet);
+    lv_label_set_text_fmt(label, "Tablet: %d", (int)session_tablet);
 
     label = lv_obj_get_child(card, -1);
-    lv_label_set_text_fmt(label, "Mobile: %"LV_PRIu32, session_mobile);
+    lv_label_set_text_fmt(label, "Mobile: %d", (int)session_mobile);
 }
 
 static void meter3_anim_cb(void * var, int32_t v)
@@ -1556,7 +1559,7 @@ static void meter3_anim_cb(void * var, int32_t v)
     lv_meter_set_indicator_value(meter3, var, v);
 
     lv_obj_t * label = lv_obj_get_child(meter3, 0);
-    lv_label_set_text_fmt(label, "%"LV_PRId32, v);
+    lv_label_set_text_fmt(label, "%d", (int)v);
 }
 
 #endif

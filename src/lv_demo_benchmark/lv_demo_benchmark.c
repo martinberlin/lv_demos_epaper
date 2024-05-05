@@ -72,9 +72,9 @@ LV_IMG_DECLARE(img_benchmark_cogwheel_chroma_keyed);
 LV_IMG_DECLARE(img_benchmark_cogwheel_indexed16);
 LV_IMG_DECLARE(img_benchmark_cogwheel_alpha16);
 
-LV_FONT_DECLARE(lv_font_benchmark_montserrat_12_compr_az);
-LV_FONT_DECLARE(lv_font_benchmark_montserrat_16_compr_az);
-LV_FONT_DECLARE(lv_font_benchmark_montserrat_28_compr_az);
+LV_FONT_DECLARE(lv_font_montserrat_12_compr_az);
+LV_FONT_DECLARE(lv_font_montserrat_16_compr_az);
+LV_FONT_DECLARE(lv_font_montserrat_28_compr_az);
 
 static void monitor_cb(lv_disp_drv_t * drv, uint32_t time, uint32_t px);
 static void scene_next_task_cb(lv_timer_t * timer);
@@ -401,7 +401,7 @@ static void txt_large_cb(void)
 static void txt_small_compr_cb(void)
 {
     lv_style_reset(&style_common);
-    lv_style_set_text_font(&style_common, &lv_font_benchmark_montserrat_12_compr_az);
+    lv_style_set_text_font(&style_common, &lv_font_montserrat_12_compr_az);
     lv_style_set_text_opa(&style_common, opa_mode ? LV_OPA_50 : LV_OPA_COVER);
     txt_create(&style_common);
 
@@ -410,7 +410,7 @@ static void txt_small_compr_cb(void)
 static void txt_medium_compr_cb(void)
 {
     lv_style_reset(&style_common);
-    lv_style_set_text_font(&style_common, &lv_font_benchmark_montserrat_16_compr_az);
+    lv_style_set_text_font(&style_common, &lv_font_montserrat_16_compr_az);
     lv_style_set_text_opa(&style_common, opa_mode ? LV_OPA_50 : LV_OPA_COVER);
     txt_create(&style_common);
 
@@ -419,7 +419,7 @@ static void txt_medium_compr_cb(void)
 static void txt_large_compr_cb(void)
 {
     lv_style_reset(&style_common);
-    lv_style_set_text_font(&style_common, &lv_font_benchmark_montserrat_28_compr_az);
+    lv_style_set_text_font(&style_common, &lv_font_montserrat_28_compr_az);
     lv_style_set_text_opa(&style_common, opa_mode ? LV_OPA_50 : LV_OPA_COVER);
     txt_create(&style_common);
 
@@ -644,7 +644,9 @@ void lv_demo_benchmark(void)
     lv_obj_set_size(scene_bg, lv_obj_get_width(scr), lv_obj_get_height(scr) - subtitle->coords.y2 - LV_DPI_DEF / 30);
     lv_obj_align(scene_bg, LV_ALIGN_BOTTOM_MID, 0, 0);
 
+
     lv_style_init(&style_common);
+    lv_style_set_text_font(&style_common, &lv_font_montserrat_28_compr_az);
 
     lv_obj_update_layout(scr);
 
@@ -691,13 +693,16 @@ static void scene_next_task_cb(lv_timer_t * timer)
         opa_mode = true;
     }
 
+    
     if(scenes[scene_act].create_cb) {
-        lv_label_set_text_fmt(title, "%"LV_PRId32"/%d: %s%s", scene_act * 2 + (opa_mode ? 1 : 0), (sizeof(scenes) / sizeof(scene_dsc_t) * 2) - 2,  scenes[scene_act].name, opa_mode ? " + opa" : "");
+        lv_obj_add_style(title, &style_common, 0);
+        lv_label_set_text_fmt(title, "%ld/%d: %s%s", scene_act * 2 + (opa_mode ? 1 : 0), (sizeof(scenes) / sizeof(scene_dsc_t) * 2) - 2,  scenes[scene_act].name, opa_mode ? " + opa" : "");
+        lv_obj_add_style(subtitle, &style_common, 0);
         if(opa_mode) {
-            lv_label_set_text_fmt(subtitle, "Result of \"%s\": %"LV_PRId32" FPS", scenes[scene_act].name, scenes[scene_act].fps_normal);
+            lv_label_set_text_fmt(subtitle, "Result of \"%s\": %ld FPS", scenes[scene_act].name, scenes[scene_act].fps_normal);
         } else {
             if(scene_act > 0) {
-                lv_label_set_text_fmt(subtitle, "Result of \"%s + opa\": %"LV_PRId32" FPS", scenes[scene_act - 1].name, scenes[scene_act - 1].fps_opa);
+                lv_label_set_text_fmt(subtitle, "Result of \"%s + opa\": %ld FPS", scenes[scene_act - 1].name, scenes[scene_act - 1].fps_opa);
             } else {
                 lv_label_set_text(subtitle, "");
             }
@@ -744,10 +749,10 @@ static void scene_next_task_cb(lv_timer_t * timer)
         lv_obj_set_flex_flow(lv_scr_act(), LV_FLEX_FLOW_COLUMN);
 
         title = lv_label_create(lv_scr_act());
-        lv_label_set_text_fmt(title, "Weighted FPS: %"LV_PRIu32, fps_weighted);
+        lv_label_set_text_fmt(title, "Weighted FPS: %ld", fps_weighted);
 
         subtitle = lv_label_create(lv_scr_act());
-        lv_label_set_text_fmt(subtitle, "Opa. speed: %"LV_PRIu32"%%", opa_speed_pct);
+        lv_label_set_text_fmt(subtitle, "Opa. speed: %ld%%", opa_speed_pct);
 
         lv_coord_t w = lv_obj_get_content_width(lv_scr_act());
         lv_obj_t * table = lv_table_create(lv_scr_act());
@@ -788,7 +793,7 @@ static void scene_next_task_cb(lv_timer_t * timer)
             if(scenes[i].fps_normal < 20 && scenes[i].weight >= 10) {
                 lv_table_set_cell_value(table, row, 0, scenes[i].name);
 
-                lv_snprintf(buf, sizeof(buf), "%"LV_PRIu32, scenes[i].fps_normal);
+                lv_snprintf(buf, sizeof(buf), "%ld", scenes[i].fps_normal);
                 lv_table_set_cell_value(table, row, 1, buf);
 
 //                lv_table_set_cell_type(table, row, 0, 2);
@@ -801,7 +806,7 @@ static void scene_next_task_cb(lv_timer_t * timer)
                 lv_snprintf(buf, sizeof(buf), "%s + opa", scenes[i].name);
                 lv_table_set_cell_value(table, row, 0, buf);
 
-                lv_snprintf(buf, sizeof(buf), "%"LV_PRIu32, scenes[i].fps_opa);
+                lv_snprintf(buf, sizeof(buf), "%ld", scenes[i].fps_opa);
                 lv_table_set_cell_value(table, row, 1, buf);
 
 //                lv_table_set_cell_type(table, row, 0, 2);
@@ -826,7 +831,7 @@ static void scene_next_task_cb(lv_timer_t * timer)
         for(i = 0; i < sizeof(scenes) / sizeof(scene_dsc_t) - 1; i++) {
             lv_table_set_cell_value(table, row, 0, scenes[i].name);
 
-            lv_snprintf(buf, sizeof(buf), "%"LV_PRIu32, scenes[i].fps_normal);
+            lv_snprintf(buf, sizeof(buf), "%ld", scenes[i].fps_normal);
             lv_table_set_cell_value(table, row, 1, buf);
 
             if(scenes[i].fps_normal < 10) {
@@ -843,7 +848,7 @@ static void scene_next_task_cb(lv_timer_t * timer)
             lv_snprintf(buf, sizeof(buf), "%s + opa", scenes[i].name);
             lv_table_set_cell_value(table, row, 0, buf);
 
-            lv_snprintf(buf, sizeof(buf), "%"LV_PRIu32, scenes[i].fps_opa);
+            lv_snprintf(buf, sizeof(buf), "%ld", scenes[i].fps_opa);
             lv_table_set_cell_value(table, row, 1, buf);
 
 
@@ -1003,7 +1008,7 @@ static int32_t rnd_next(int32_t min, int32_t max)
 {
     if(min == max)
         return min;
-
+    
     if(min > max) {
         int32_t t = min;
         min = max;
